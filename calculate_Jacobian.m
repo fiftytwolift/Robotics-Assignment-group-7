@@ -1,9 +1,17 @@
+function [Jacobian] = calculate_Jacobian(q_array)
+%% check whether the input is avialable
+
+if (length(q_array) ~= 5)
+    warning('q_array must be length of 5')
+    return;
+end
+
 %% Robotic Systems Assignment 1
 % Author: Jonathan Wong, Samuel Wong, Peter Lin
 % Name: main_script.m
 % Purpose: All functions and implementations will be called from here to
 %          execute assignment 1 tasks.
-clear all
+clearvars  -except q_array
 clc
 %% Parameter Definitions
 % Defines all parameters of the robot
@@ -15,7 +23,7 @@ Link_4 = 30; %link between joint 4 to end effector
 
 %% DH Table Definitions
 % From the DH table, the variables are defined below
-syms d0 a2 a3 d5 dE Q1 Q2 Q3 Q4 Q5 E 
+syms d0 a2 a3 d5 dE Q1 Q2 Q3 Q4 Q5 E t
 d0 = Link_0;
 a2 = Link_1;
 a3 = Link_2;
@@ -32,9 +40,9 @@ dE = Link_4;
 % Create all the arrays in the DH table
 i_value = [1;2;3;4;5;E];
 Dx = [0;0;a2;a3;0;0];
-Rx = [0;90;0;0;-pi/2;0];
+Rx = [0;90;0;0;-90;0];
 Dz = [d0;0;0;0;0;d5+dE];
-Rz = [Q1;Q2;-pi/2 + Q3;-pi/2 + Q4;Q5;0];
+Rz = [Q1;Q2;-90 + Q3;-90 + Q4;Q5;0];
 % Generates DH Table
 DH_table = table(i_value,Dx,Rx,Dz,Rz);
 DH_table(1:6,:);
@@ -69,16 +77,18 @@ z4 = T0_4 * [0;0;1;0];
 z5 = T0_5 * [0;0;1;0];
 ze = T0_E * [0;0;1;0];
 %% Get the Jacobians for w
-J_vw = [cross(transpose(z1(1:3)),transpose(p_1w(1:3)))', cross(transpose(z2(1:3)),transpose(p_2w(1:3)))', cross(transpose(z3(1:3)),transpose(p_3w(1:3)))' zeros(3,3)];
-J_vw = vpa(J_vw,5);
+J_vw = [cross(transpose(z1(1:3)),transpose(p_1w(1:3)))', ...
+        cross(transpose(z2(1:3)),transpose(p_2w(1:3)))', ...
+        cross(transpose(z3(1:3)),transpose(p_3w(1:3)))' zeros(3,3)];
 J_ww = [z1(1:3) z2(1:3) z3(1:3) z4(1:3) z5(1:3) ze(1:3)];
-J_ww = vpa(J_ww,5);
 J_w = [J_vw;J_ww];
 
 %% Get the Jacobian for frame e
 syms Q1_dot Q2_dot Q3_dot Q4_dot Q5_dot
-p_we_skew = [0 -p_we(3) p_we(2) ; p_we(3) 0 -p_we(1) ; -p_we(2) p_we(1) 0 ];
+p_we_skew = [0 p_we(3) -p_we(2) ; -p_we(3) 0 p_we(1) ; p_we(2) -p_we(1) 0 ];
 J_ve = [eye(3) , p_we_skew]*J_w;
-J_ve = vpa(J_ve,5);
 J_we = [zeros(3) , eye(3)]*J_w;
-J_we = vpa(J_we,5);
+
+J_e = [J_ve;J_we];
+
+Jacobian = vpa(subs(J_e,[Q1 Q2 Q3 Q4 Q5],q_array),4);
