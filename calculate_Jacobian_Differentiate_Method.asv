@@ -1,10 +1,19 @@
-%% Robotic Systems Assignment 1
+function [Jacobian] = calculate_Jacobian_Differentiate_Method(q_array)
+
+%% Robotic Systems Assignment 2
 % Author: Jonathan Wong, Samuel Wong, Peter Lin
 % Name: main_script.m
 % Purpose: All functions and implementations will be called from here to
 %          execute assignment 1 tasks.
-clear all
-% clc
+clearvars  -except q_array
+clc
+
+%% check whether the input is avialable
+if (length(q_array) ~= 5)
+    warning('q_array must be length of 5')
+    return;
+end
+
 %% Parameter Definitions
 % Defines all parameters of the robot
 Link_0 = 300; %link between ground to first joint
@@ -69,9 +78,7 @@ v_val_d = convert_diff_t(diff(v_val,t),true);
 syms Q1_d Q2_d Q3_d Q4_d Q5_d
 syms d0 a2 a3 d5 dE Q1_ Q2_ Q3_ Q4_ Q5_ E t
 vars = [Q1_d Q2_d Q3_d Q4_d Q5_d];
-[Coefficient, ZerosM] = equationsToMatrix(v_val_d,vars);
+[Coefficient, ZerosM] = equationsToMatrix(v_val_d,c);
 % ZerosM = subs(ZerosM,str2sym('(t)'),str2num('0'));
 % x_derivatives = inv(Coefficient)*ZerosM
-Q_vals = [0 0 0 0 0];
-Coefficient = subs(Coefficient,[Q1_ Q2_ Q3_ Q4_ Q5_],Q_vals);
-disp(Coefficient);
+Jacobian = subs(Coefficient,[Q1_ Q2_ Q3_ Q4_ Q5_],q_array);

@@ -1,17 +1,19 @@
-function [Jacobian] = calculate_Jacobian(q_array)
-%% check whether the input is avialable
-if (length(q_array) ~= 5)
-    warning('q_array must be length of 5')
-    return;
-end
+function [Jacobian] = calculate_Jacobian_Differentiate_Method(q_array)
 
-%% Robotic Systems Assignment 1
+%% Robotic Systems Assignment 2
 % Author: Jonathan Wong, Samuel Wong, Peter Lin
 % Name: main_script.m
 % Purpose: All functions and implementations will be called from here to
 %          execute assignment 1 tasks.
 clearvars  -except q_array
 % clc
+
+%% check whether the input is avialable
+if (length(q_array) ~= 5)
+    warning('q_array must be length of 5')
+    return;
+end
+
 %% Parameter Definitions
 % Defines all parameters of the robot
 Link_0 = 0.300; %link between ground to first joint
@@ -28,6 +30,12 @@ a2 = Link_1;
 a3 = Link_2;
 d5 = Link_3;
 dE = Link_4;
+% % For Zero Configuration, all zeros
+% Q1 = 0;
+% Q2 = 0; %Change this to 90 for Straight up
+% Q3 = 90; %Change this to 90 for L-shape and Straight up configurations
+% Q4 = 0;
+% Q5 = 0;
 
 %% DH Table Generation
 % Create all the arrays in the DH table
@@ -55,38 +63,24 @@ T0_4 = T0_3 * T3_4;
 T0_5 = T0_4 * T4_5;
 T0_E = T0_5*T5_E;
 
-%% getting the vector pointing from 1,2,3 to point W
-p_3w = T0_3*[a3;0;0;0];
-p_2w = T0_2*[a2;0;0;0] + p_3w;
-p_1w = T0_1*[0;0;0;0] + p_2w;
 
-p_5e = T0_5*[0;0;0;0];
-p_we = T0_E*[0;0;d5+dE;0]+p_5e;
-
-%% Getting the z axis expressed in frame 0
-z1 = T0_1 * [0;0;1;0];
-z2 = T0_2 * [0;0;1;0];
-z3 = T0_3 * [0;0;1;0];
-z4 = T0_4 * [0;0;1;0];
-z5 = T0_5 * [0;0;1;0];
-ze = T0_E * [0;0;1;0];
-%% Get the Jacobians for w
-J_vw = [cross(transpose(z1(1:3)),transpose(p_1w(1:3)))', ...
-        cross(transpose(z2(1:3)),transpose(p_2w(1:3)))', ...
-        cross(transpose(z3(1:3)),transpose(p_3w(1:3)))' zeros(3,3)];
-J_ww = [z1(1:3) z2(1:3) z3(1:3) z4(1:3) z5(1:3) ze(1:3)];
-J_w = [J_vw;J_ww];
-
-%% Get the Jacobian for frame e
-syms Q1_dot Q2_dot Q3_dot Q4_dot Q5_dot
-p_we_skew = [0 p_we(3) -p_we(2) ; -p_we(3) 0 p_we(1) ; p_we(2) -p_we(1) 0 ];
-J_ve = [eye(3) , p_we_skew]*J_w;
-J_we = [zeros(3) , eye(3)]*J_w;
-
-J_e = [J_ve;J_we];
+%% Derive Jacobian
+syms Q1_(t) Q2_(t) Q3_(t) Q4_(t) Q5_(t) t
+syms v_val v_val_d
+v_val = transpose(T0_E(13:15));
+v_val = subs(v_val,Q1,Q1_(t));
+v_val = subs(v_val,Q2,Q2_(t));
+v_val = subs(v_val,Q3,Q3_(t));
+v_val = subs(v_val,Q4,Q4_(t));
+v_val = subs(v_val,Q5,Q5_(t));
+v_val_d = diff(v_val,t);
+v_val_d = convert_diff_t(diff(v_val,t),true);
+syms Q1_d Q2_d Q3_d Q4_d Q5_d
+syms d0 a2 a3 d5 dE Q1_ Q2_ Q3_ Q4_ Q5_ E t
+vars = [Q1_d Q2_d Q3_d Q4_d Q5_d];
+[Coefficient, ZerosM] = equationsToMatrix(v_val_d,vars);
 
 %% output of a cleaned up version of jacobian
-
-Jacobian = subs(J_e,[Q1 Q2 Q3 Q4 Q5],q_array);
+Jacobian = vpa(subs(Coefficient,[Q1_ Q2_ Q3_ Q4_ Q5_],q_array),4);
 Jacobian(find(abs(Jacobian)<0.0001)) = 0;
 Jacobian = vpa(Jacobian,4);
