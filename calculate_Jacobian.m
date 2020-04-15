@@ -53,7 +53,7 @@ T0_2 = T0_1* T1_2;
 T0_3 = T0_2 * T2_3;
 T0_4 = T0_3 * T3_4;
 T0_5 = T0_4 * T4_5;
-T0_E = T0_5*T5_E;
+T0_E = T0_5 * T5_E;
 
 %% getting the vector pointing from 1,2,3 to point W
 p_3w = T0_3*[a3;0;0;0];
@@ -69,12 +69,12 @@ z2 = T0_2 * [0;0;1;0];
 z3 = T0_3 * [0;0;1;0];
 z4 = T0_4 * [0;0;1;0];
 z5 = T0_5 * [0;0;1;0];
-ze = T0_E * [0;0;1;0];
+% ze = T0_E * [0;0;1;0];
 %% Get the Jacobians for w
 J_vw = [cross(transpose(z1(1:3)),transpose(p_1w(1:3)))', ...
         cross(transpose(z2(1:3)),transpose(p_2w(1:3)))', ...
-        cross(transpose(z3(1:3)),transpose(p_3w(1:3)))' zeros(3,3)];
-J_ww = [z1(1:3) z2(1:3) z3(1:3) z4(1:3) z5(1:3) ze(1:3)];
+        cross(transpose(z3(1:3)),transpose(p_3w(1:3)))' zeros(3,2)];
+J_ww = [z1(1:3) z2(1:3) z3(1:3) z4(1:3) z5(1:3) ];
 J_w = [J_vw;J_ww];
 
 %% Get the Jacobian for frame e
