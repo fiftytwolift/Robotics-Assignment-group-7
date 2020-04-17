@@ -53,8 +53,8 @@ r_3w = simplify(T03*[a3;0;0;0]);
 r_2w = simplify(T02*[a2;0;0;0] + r_3w);
 r_1w = simplify(T01*[0;0;0;0] + r_2w);
 
-r_5e = simplify(T05*[0;0;0;0]);
-r_we = simplify(T0E*[0;0;d5+dE;0]+r_5e);
+r_5e = simplify(T05*[0;0;d5+dE;0]);
+r_we = simplify(T0E*[0;0;0;0]+r_5e);
 
 %%
 J_vw = [cross(z1(1:3),r_1w(1:3)), cross(z2(1:3),r_2w(1:3)), ...

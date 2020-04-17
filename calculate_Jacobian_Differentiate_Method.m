@@ -30,12 +30,6 @@ a2 = Link_1;
 a3 = Link_2;
 d5 = Link_3;
 dE = Link_4;
-% % For Zero Configuration, all zeros
-% Q1 = 0;
-% Q2 = 0; %Change this to 90 for Straight up
-% Q3 = 90; %Change this to 90 for L-shape and Straight up configurations
-% Q4 = 0;
-% Q5 = 0;
 
 %% DH Table Generation
 % Create all the arrays in the DH table
