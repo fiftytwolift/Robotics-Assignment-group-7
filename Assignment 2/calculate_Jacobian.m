@@ -5,9 +5,9 @@ if (length(q_array) ~= 5)
     return;
 end
 
-%% Robotic Systems Assignment 1
+%% Robotic Systems Assignment 2
 % Author: Jonathan Wong, Samuel Wong, Peter Lin
-% Name: main_script.m
+% Name: calculate_Jacobian.m
 % Purpose: All functions and implementations will be called from here to
 %          execute assignment 1 tasks.
 clearvars  -except q_array

@@ -68,7 +68,7 @@ v_val = subs(v_val,Q3,Q3_(t));
 v_val = subs(v_val,Q4,Q4_(t));
 v_val = subs(v_val,Q5,Q5_(t));
 v_val_d = diff(v_val,t);
-v_val_d = convert_diff_t(diff(v_val,t),true);
+v_val_d = vpa(convert_diff_t(diff(v_val,t),true),2)
 syms Q1_d Q2_d Q3_d Q4_d Q5_d
 syms d0 a2 a3 d5 dE Q1_ Q2_ Q3_ Q4_ Q5_ E t
 vars = [Q1_d Q2_d Q3_d Q4_d Q5_d];

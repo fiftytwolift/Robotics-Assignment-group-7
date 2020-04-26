@@ -1,0 +1,41 @@
+function segmentCoeff = TrajGen01(init, final, tfinal)
+% checking the size and validity of the input
+if (length(init) ~= 2 ||  length(final) ~= 2 || tfinal ~= 3)
+    warning('The input is not valid')
+    return;
+end
+init_pos = init(1);
+init_vel = init(2);
+final_pos = final(1);
+final_vel = final(2);
+init_time = tfinal(1);
+via_time = tfinal(1);
+final_time = tfinal(1);
+via_x_pos = 5;
+via_y_pos = 8;
+via_vel = 0.25; %given
+
+%the equation are written in the form a*t^3 + b*t^2 + c*t + d = c 
+M = [init_time^3 init_time^2 init_time^1 1 zeros(1,4);
+     3*init_time^2 2*init_time init_time 0 zeros(1,4);
+     via_time^3 via_time^2 via_time^1 1 zeros(1,4);
+     3*via_time^2 2*via_time via_time 0 zeros(1,4);
+     
+     zeros(1,4) via_time^3 via_time^2 via_time^1 1;
+      zeros(1,4) 3*via_time^2 2*via_time via_time 0;
+y = [%first segment
+     init_pos;
+     init_vel;
+     via_x_pos; %when calculating for x
+     %via_y_pos; %when calculating for y
+     via_vel;
+     
+     %second segment
+     via_x_pos; %when calculating for x
+     %via_y_pos; %when calculating for y
+     via_vel;
+     final_pos;
+    final_vel;
+% set up a matrix to represent the cubic spline
+end
+
