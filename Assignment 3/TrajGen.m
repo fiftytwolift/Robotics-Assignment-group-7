@@ -31,7 +31,7 @@ M_first_seg = [init_time^3 init_time^2 init_time^1 1 zeros(1,4*(total_segment-1)
                3*init_time^2 2*init_time 1 0 zeros(1,4*(total_segment-1));
                via_time(1)^3 via_time(1)^2 via_time(1)^1 1 zeros(1,4*(total_segment-1));
                3*via_time(1)^2 2*via_time(1) 1 0 zeros(1,4*(total_segment-1))];
-M_via = []
+M_via = [];
 for i = 1:total_segment-2
     M_via = [M_via;
             zeros(1,4*i) via_time(i)^3 via_time(i)^2 via_time(i)^1 1 zeros(1,4*(total_segment-1-i));
@@ -51,20 +51,20 @@ y_first = [%first segment
             init_pos;
             init_vel;
             via_pos(1); 
-            via_vel(1)]
+            via_vel(1)];
 y_via = [];
 for i = 1:total_segment-2
     y_via = [y_via;
              via_pos(i);
              via_vel(i);
              via_pos(i+1);
-             via_vel(i+1)]
+             via_vel(i+1)];
 end
 y_final = [%final segment
             via_pos(end); 
             via_vel(end);
             final_pos;
-            final_vel]
+            final_vel];
 % concat all the y together
 y = [y_first;y_via;y_final];
  
