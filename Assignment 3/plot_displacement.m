@@ -1,4 +1,4 @@
-function displacement = plot_displacement(segmentCoeff, tfinal)
+function displacement = plot_displacement(segmentCoeff, tfinal, withPlot)
 
 %% checking the size and validity of the input
 if (length(segmentCoeff)/4 ~= length(tfinal))
@@ -21,8 +21,10 @@ for time_index = 1: length(t)
     end
     displacement(time_index) = [zeros(1,(cur_segment-1)*4) t(time_index)^3 t(time_index)^2 t(time_index)^1 1 zeros(1,(total_segment-cur_segment)*4)]*segmentCoeff;
 end
-figure()
-plot(t,displacement);
-title('displacement vs time')
-xlabel('time/s')
-ylabel('displacement / m')
+if (withPlot)    
+    figure()
+    plot(t,displacement);
+    title('displacement vs time')
+    xlabel('time/s')
+    ylabel('displacement / m')    
+end

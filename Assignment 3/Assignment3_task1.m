@@ -8,8 +8,8 @@ x_coeff = TrajGen([2,0],[14,0],[5,0.25],tfinal);
 y_coeff = TrajGen([5,0],[7,0],[8,0.25],tfinal);
 
 %% get the displacement and velocity in both x and y
-x_displacement = plot_displacement(x_coeff,tfinal);
-y_displacement = plot_displacement(y_coeff,tfinal);
+x_displacement = plot_displacement(x_coeff,tfinal,true);
+y_displacement = plot_displacement(y_coeff,tfinal,true);
 plot_velocity(x_coeff,tfinal);
 plot_velocity(y_coeff,tfinal);
 

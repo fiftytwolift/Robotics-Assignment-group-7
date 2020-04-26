@@ -2,19 +2,18 @@
 close all
 clear all
 tfinal = [3,5.5,8];
-d_xpos = 10;
-d_xvel = 0.25;
-d_ypos = 5;
-d_yvel = 0.25;
+d_xpos = 9.9;
+d_xvel = 0.0;
+d_ypos = 5.3;
+d_yvel = 0.0;
 
 %% calculate the segments coefficents for x and y
 x_coeff = TrajGen([2,0],[14,0],[5,0.25,d_xpos,d_xvel],tfinal);
 y_coeff = TrajGen([5,0],[7,0],[8,0.25,d_ypos,d_yvel],tfinal);
 
 %% get the displacement and velocity in both x and y
-hold off
-x_displacement = plot_displacement(x_coeff,tfinal);
-y_displacement = plot_displacement(y_coeff,tfinal);
+x_displacement = plot_displacement(x_coeff,tfinal,true);
+y_displacement = plot_displacement(y_coeff,tfinal,true);
 plot_velocity(x_coeff,tfinal);
 plot_velocity(y_coeff,tfinal);
 
@@ -52,7 +51,7 @@ end
 %% plot the final trajectory with robotic arm
 figure()
 hold on
-plot(circle_x,circle_y,'o')
+plot(circle_x,circle_y,'-')
 plot(x_displacement,y_displacement)
 skip_frame = 10;
 for i = 0:skip_frame:length(Q1)-1
