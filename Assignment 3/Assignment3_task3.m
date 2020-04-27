@@ -1,21 +1,28 @@
 %% set up variables
 close all
 clear all
-tfinal = [3,5.5,8];
-d_xpos = 9.9;
-d_xvel = 0.0;
-d_ypos = 5.3;
-d_yvel = 0.0;
 
+% timing, position and velocity for pt B, pt C and pt D
+time = [0,3,5.5,8];
+ptA = [2,5;0,0];
+ptB = [5,8;0.25,0.25];
+ptC = [14,7;0,0];
+ptD = [9.9,5.3;0,0];
 %% calculate the segments coefficents for x and y
-x_coeff = TrajGen([2,0],[14,0],[5,0.25,d_xpos,d_xvel],tfinal);
-y_coeff = TrajGen([5,0],[7,0],[8,0.25,d_ypos,d_yvel],tfinal);
+x_coeff_1 = TrajGen01(ptA(:,1),ptB(:,1),time(1:2));
+x_coeff_2 = TrajGen01(ptB(:,1),ptD(:,1),time(2:3));
+x_coeff_3 = TrajGen01(ptD(:,1),ptC(:,1),time(3:4));
+y_coeff_1 = TrajGen01(ptA(:,2),ptB(:,2),time(1:2));
+y_coeff_2 = TrajGen01(ptB(:,2),ptD(:,2),time(2:3));
+y_coeff_3 = TrajGen01(ptD(:,2),ptC(:,2),time(3:4));
+x_coeff = [x_coeff_1;x_coeff_2;x_coeff_3];
+y_coeff = [y_coeff_1;y_coeff_2;y_coeff_3];
 
 %% get the displacement and velocity in both x and y
-x_displacement = plot_displacement(x_coeff,tfinal,true);
-y_displacement = plot_displacement(y_coeff,tfinal,true);
-plot_velocity(x_coeff,tfinal);
-plot_velocity(y_coeff,tfinal);
+x_displacement = plot_displacement(x_coeff,time(2:4),true);
+y_displacement = plot_displacement(y_coeff,time(2:4),true);
+plot_velocity(x_coeff,time(2:4));
+plot_velocity(y_coeff,time(2:4));
 
 %% get the robotic arm
 Q1 = [];
