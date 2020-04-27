@@ -13,9 +13,9 @@ final_vel = final(2);
 init_time = 0;
 via_time = tfinal(1);
 final_time = tfinal(2);
-via_x_pos = 5;
+via_x_pos = 5; %given
 via_y_pos = 8;
-via_vel = 0.25; %given
+via_vel = 0.25; 
 
 %% set up a matrix to represent the cubic spline
 %the equation are written in the form a*t^3 + b*t^2 + c*t + d = c 

@@ -2,9 +2,9 @@
 close all
 clear all
 tfinal = [3,5.5,8];
-d_xpos = 10.1;
+d_xpos = 10.24;
 d_xvel = 0.0;
-d_ypos = 8.6;
+d_ypos = 8.52;
 d_yvel = 0.0;
 
 %% calculate the segments coefficents for x and y
