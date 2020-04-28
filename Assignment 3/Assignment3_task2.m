@@ -21,11 +21,14 @@ y_coeff = [y_coeff_1;y_coeff_2;y_coeff_3];
 % x_coeff = TrajGen([2,0],[14,0],[5,0.25],[3,8]);
 % y_coeff = TrajGen([5,0],[7,0],[8,0.25],[3,8]);
 %% get the displacement and velocity in both x and y
-hold off
 x_displacement = plot_displacement(x_coeff,time(2:4),true);
+title('x displacement vs time')
 y_displacement = plot_displacement(y_coeff,time(2:4),true);
+title('y displacement vs time')
 plot_velocity(x_coeff,time(2:4));
+title('x velocity vs time')
 plot_velocity(y_coeff,time(2:4));
+title('y velocity vs time')
 
 %% draw the obstacle circle
 r = 1.5;
@@ -60,3 +63,14 @@ pbaspect([14 9.5 1])
 axis([0 14 0 9.5])
 xlabel('x / m')
 ylabel('y / m')
+title('Trajectory for Task 2')
+xlabel('x / m')
+ylabel('y / m')
+plot(ptA(1,1),ptA(1,2),'bo','LineWidth',5)
+text(ptA(1,1)+0.5,ptA(1,2),'Pt A')
+plot(ptB(1,1),ptB(1,2),'bo','LineWidth',5)
+text(ptB(1,1)+0.5,ptB(1,2)-0.5,'Pt B')
+plot(ptC(1,1),ptC(1,2),'bo','LineWidth',5)
+text(ptC(1,1)+0.5,ptC(1,2),'Pt C')
+plot(ptD(1,1),ptD(1,2),'bo','LineWidth',5)
+text(ptD(1,1)+0.5,ptD(1,2),'Pt D')

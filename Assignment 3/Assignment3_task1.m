@@ -15,16 +15,27 @@ x_coeff = [x_coeff_1;x_coeff_2];
 y_coeff = [y_coeff_1;y_coeff_2];
 %% get the displacement and velocity in both x and y
 x_displacement = plot_displacement(x_coeff,time(2:3),true);
+title('x displacement vs time')
 y_displacement = plot_displacement(y_coeff,time(2:3),true);
+title('y displacement vs time')
 plot_velocity(x_coeff,time(2:3));
+title('x velocity vs time')
 plot_velocity(y_coeff,time(2:3));
+title('y velocity vs time')
 
 
 %% plot the final trajectory
 figure()
 hold on
 plot(x_displacement,y_displacement)
-pbaspect([14 8.5 1])
-axis([0 14 0 8.5])
+pbaspect([14.5 8.5 1])
+axis([0 14.5 0 8.5])
+title('Trajectory for Task 1')
 xlabel('x / m')
 ylabel('y / m')
+plot(ptA(1,1),ptA(1,2),'bo','LineWidth',5)
+text(ptA(1,1)+0.5,ptA(1,2),'Pt A')
+plot(ptB(1,1),ptB(1,2),'bo','LineWidth',5)
+text(ptB(1,1)+0.5,ptB(1,2)-0.5,'Pt B')
+plot(ptC(1,1),ptC(1,2),'bo','LineWidth',5)
+text(ptC(1,1)+0.5,ptC(1,2),'Pt C')

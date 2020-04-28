@@ -1,12 +1,13 @@
 %% set up variables
 close all
 clear all
-%timing for pt B and pt C
+
+% timing, position and velocity for pt B, pt C and pt D
 time = [0,3,5.5,8];
 ptA = [2,5;0,0];
 ptB = [5,8;0.25,0.25];
 ptC = [14,7;0,0];
-ptD = [10.24,8.52;0,0];
+ptD = [9.9,5.3;0,0];
 %% calculate the segments coefficents for x and y
 x_coeff_1 = TrajGen01(ptA(:,1),ptB(:,1),time(1:2));
 x_coeff_2 = TrajGen01(ptB(:,1),ptD(:,1),time(2:3));
@@ -16,16 +17,24 @@ y_coeff_2 = TrajGen01(ptB(:,2),ptD(:,2),time(2:3));
 y_coeff_3 = TrajGen01(ptD(:,2),ptC(:,2),time(3:4));
 x_coeff = [x_coeff_1;x_coeff_2;x_coeff_3];
 y_coeff = [y_coeff_1;y_coeff_2;y_coeff_3];
-% if we assume no point d
-% tfinal = [3,8];
-% x_coeff = TrajGen([2,0],[14,0],[5,0.25],[3,8]);
-% y_coeff = TrajGen([5,0],[7,0],[8,0.25],[3,8]);
+
 %% get the displacement and velocity in both x and y
-hold off
 x_displacement = plot_displacement(x_coeff,time(2:4),true);
+title('x displacement vs time')
 y_displacement = plot_displacement(y_coeff,time(2:4),true);
+title('y displacement vs time')
 plot_velocity(x_coeff,time(2:4));
+title('x velocity vs time')
 plot_velocity(y_coeff,time(2:4));
+title('y velocity vs time')
+
+
+%% get the robotic arm
+Q1 = [];
+Q2 = [];
+for i = 1:length(x_displacement)
+    [Q1(i),Q2(i)] = two_arm_IK(x_displacement(i),y_displacement(i));
+end
 
 %% draw the obstacle circle
 r = 1.5;
@@ -51,12 +60,27 @@ if closest_dist_to_obs < r
     return
 end
 
-%% plot the final trajectory
+%% plot the final trajectory with robotic arm
 figure()
 hold on
 plot(circle_x,circle_y,'-')
 plot(x_displacement,y_displacement)
-pbaspect([14 9.5 1])
-axis([0 14 0 9.5])
+skip_frame = 10;
+for i = 0:skip_frame:length(Q1)-1
+    plot_robot(Q1(i+1),Q2(i+1),0.1i/length(Q1));
+end 
+pbaspect([14 13.5 1])
+axis([0 14 -5 8.5])
 xlabel('x / m')
 ylabel('y / m')
+title('Trajectory for Task 2')
+xlabel('x / m')
+ylabel('y / m')
+plot(ptA(1,1),ptA(1,2),'bo','LineWidth',5)
+text(ptA(1,1)+0.5,ptA(1,2),'Pt A')
+plot(ptB(1,1),ptB(1,2),'bo','LineWidth',5)
+text(ptB(1,1)+0.5,ptB(1,2)-0.5,'Pt B')
+plot(ptC(1,1),ptC(1,2),'bo','LineWidth',5)
+text(ptC(1,1)+0.5,ptC(1,2),'Pt C')
+plot(ptD(1,1),ptD(1,2),'bo','LineWidth',5)
+text(ptD(1,1)+0.5,ptD(1,2),'Pt D')
