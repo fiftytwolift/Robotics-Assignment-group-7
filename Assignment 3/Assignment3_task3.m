@@ -9,8 +9,8 @@ ptB = [5,8;0.25,0.25];
 ptC = [14,7;0,0];
 ptD = [9.8,5.3;0,0];
 %% calculate the segments coefficents for x and y
-x_coeff = TrajGen01([ptA(:,1),ptB(:,1),ptD(:,1)],[ptB(:,1),ptD(:,1),ptC(:,1)],time);
-y_coeff = TrajGen01([ptA(:,2),ptB(:,2),ptD(:,2)],[ptB(:,2),ptD(:,2),ptC(:,2)],time);
+x_coeff = TrajGen01([ptA(:,1),ptB(:,1),ptD(:,1)],[ptB(:,1),ptD(:,1),ptC(:,1)],time)
+y_coeff = TrajGen01([ptA(:,2),ptB(:,2),ptD(:,2)],[ptB(:,2),ptD(:,2),ptC(:,2)],time)
 
 %% get the displacement and velocity in both x and y
 x_displacement = plot_displacement(x_coeff,time,true);
