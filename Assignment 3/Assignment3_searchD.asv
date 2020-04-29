@@ -18,21 +18,16 @@ min_path_dist = inf;
 min_d_xpos = inf;
 min_d_ypos = inf;
 discard = false;
-startPt = [5,8];
-endPt = [14,7];
+start_coordinates = [5,8];
+end_coordinates = [14,7];
 %% perform a grid search around the area of interest
-search_Delta = 0.01;
-min_improve = 0.05;
-for dx = -0.5:search_Delta:0.5
-    for dy = -2*r:search_Delta:-1.5
-        DPt = [circle_xy(1) + dx, circle_xy(2) + dy];
-        %ignore the choice if the point is inside our obstacle
-        if pdist([DPt;circle_xy],'Euclidean') < r
-            continue;
-        end
-        path_dist = pdist([DPt;startPt],'Euclidean') + pdist([DPt;endPt],'Euclidean');
+for dx = -1.5*r:0.01:1.5*r
+    for dy = -1.5*r:0.01:1.5*r
+        d_xpos = circle_xy(1) + dx;
+        d_ypos = circle_xy(2) + dy;
+        path_dist = pdist([d_xpos,d_ypos;14,7],'euclidean') + pdist([d_xpos,d_ypos;5,8],'euclidean');
         %ignore this via point because it is longer than current best
-        if path_dist + min_improve > min_path_dist
+        if path_dist > min_path_dist
             continue;
         end
         
@@ -41,7 +36,7 @@ for dx = -0.5:search_Delta:0.5
         ptA = [2,5;0,0];
         ptB = [5,8;0.25,0.25];
         ptC = [14,7;0,0];
-        ptD = [DPt;0,0];
+        ptD = [d_xpos,d_ypos;0,0];
         %% calculate the segments coefficents for x and y
         x_coeff = TrajGen01([ptA(:,1),ptB(:,1),ptD(:,1)],[ptB(:,1),ptD(:,1),ptC(:,1)],time);
         y_coeff = TrajGen01([ptA(:,2),ptB(:,2),ptD(:,2)],[ptB(:,2),ptD(:,2),ptC(:,2)],time);
@@ -68,10 +63,10 @@ for dx = -0.5:search_Delta:0.5
         if (considerArm)
             L1 = 9;
             L2 = 9;
-            division = 5;
+            division = 20;
             Q1 = [];
             Q2 = [];
-            for i = 1:floor(length(x_displacement)/10):length(x_displacement)
+            for i = 1:length(x_displacement)
                 [Q1,Q2] = two_arm_IK(x_displacement(i),y_displacement(i));
                 mid_pt = [L1*cosd(Q1),L1*sind(Q1)];
                 end_effector = mid_pt+[L2*cosd(Q1+Q2),L2*sind(Q1+Q2)];
@@ -93,8 +88,8 @@ for dx = -0.5:search_Delta:0.5
         
         if discard == false
             min_path_dist = path_dist;
-            min_d_xpos = DPt(1);
-            min_d_ypos = DPt(2);
+            min_d_xpos = d_xpos;
+            min_d_ypos = d_ypos;
             fprintf('current best via point is (%4.2f , %4.2f) with BCD linaer distance %4.2f \n',min_d_xpos, min_d_ypos, min_path_dist)
         end
         % reset the discard

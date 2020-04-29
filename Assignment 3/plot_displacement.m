@@ -8,7 +8,7 @@ end
 %% plot the cubic spline
 % get the array for t
 t = 0;
-delta = 0.1;
+delta = 0.01;
 for i = 1:length(tfinal)
     t = [t (t(end)+delta):delta:tfinal(i)];
 end
