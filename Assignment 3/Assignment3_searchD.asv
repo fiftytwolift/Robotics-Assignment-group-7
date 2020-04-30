@@ -1,7 +1,6 @@
-function ptD = Assignment3_searchD(obstaclePos, obstacleRadius, searchDelta, considerArm, refinedCentre)
+function ptD = Assignment3_searchD(obstaclePos, obstacleRadius, searchDelta, considerArm)
 %% set up variables
 close all
-
 % definition of the obstacle
 circle_xy = obstaclePos;
 r = obstacleRadius;
@@ -15,15 +14,9 @@ startPt = [5,8];
 endPt = [14,7];
 %% perform a grid search around the area of interest
 search_Delta = searchDelta;
-min_improve = 0.01;
-if nargin == 4
-    searchBoundary = 1.5*r;
-elseif nargin == 5
-    searchBoundary = search_Delta*15;
-end
-
-for dx = -searchBoundary:search_Delta:searchBoundary
-    for dy = -searchBoundary:search_Delta:searchBoundary
+min_improve = 0.05;
+for dx = -1.5*r:search_Delta:1.5*r
+    for dy = -1.5*r:search_Delta:1.5*r
         if nargin == 4
             DPt = [circle_xy(1) + dx, circle_xy(2) + dy];
         elseif nargin ==5

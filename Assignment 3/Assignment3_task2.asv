@@ -12,14 +12,13 @@ for i = 0:0.01:3*pi
     circle_y(index) = 7 +  r*sin(i);
 end
 
+
 %% timing, position and velocity for pt B, pt C and pt D
 time = [3,5.5,8];
 ptA = [2,5;0,0];
 ptB = [5,8;0.25,0.25];
 ptC = [14,7;0,0];
-initialPtD = Assignment3_searchD(circle_xy, r, 0.1, true);
-refinedPtD = Assignment3_searchD(circle_xy, r, 0.01, true, initialPtD);
-ptD = [refinedPtD;0,0];
+ptD = [Assignment3_searchD(circle_xy, r,);0,0];
 
 %% calculate the segments coefficents for x and y
 x_coeff = TrajGen01([ptA(:,1),ptB(:,1),ptD(:,1)],[ptB(:,1),ptD(:,1),ptC(:,1)],time)
@@ -36,13 +35,6 @@ plot_velocity(y_coeff,time);
 title('y velocity vs time')
 
 
-%% get the robotic arm
-Q1 = [];
-Q2 = [];
-for i = 1:length(x_displacement)
-    [Q1(i),Q2(i)] = two_arm_IK(x_displacement(i),y_displacement(i));
-end
-
 %% check whether we collided with the obstacle
 closest_dist_to_obs = inf; 
 
@@ -57,20 +49,16 @@ if closest_dist_to_obs < r
     return
 end
 
-%% plot the final trajectory with robotic arm
+%% plot the final trajectory
 figure()
 hold on
 plot(circle_x,circle_y,'-')
 plot(x_displacement,y_displacement)
-skip_frame = 50;
-for i = 0:skip_frame:length(Q1)-1
-    plot_robot(Q1(i+1),Q2(i+1),0.9*i/length(Q1));
-end 
-pbaspect([14 13.5 1])
-axis([0 14 -5 8.5])
+pbaspect([14 9.5 1])
+axis([0 14 0 9.5])
 xlabel('x / m')
 ylabel('y / m')
-title('Trajectory for Task 3 with Robotic Arm')
+title('Trajectory for Task 2')
 xlabel('x / m')
 ylabel('y / m')
 plot(ptA(1,1),ptA(1,2),'bo','LineWidth',5)
@@ -81,4 +69,3 @@ plot(ptC(1,1),ptC(1,2),'bo','LineWidth',5)
 text(ptC(1,1)+0.5,ptC(1,2),'Pt C')
 plot(ptD(1,1),ptD(1,2),'bo','LineWidth',5)
 text(ptD(1,1)+0.5,ptD(1,2),'Pt D')
-text(1,1,'Robotic Arm movement')

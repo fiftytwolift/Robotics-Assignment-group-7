@@ -1,13 +1,25 @@
 %% set up variables
 close all
 clear all
-% timing, position and velocity for pt B, pt C and pt D
+%% draw the obstacle circle
+r = 1.5;
+circle_xy = [10 7];
+index = 0;
+for i = 0:0.01:3*pi
+    index = index+1;
+    circle_x(index) = 10 + r*cos(i);
+    circle_y(index) = 7 +  r*sin(i);
+end
+
+
+%% timing, position and velocity for pt B, pt C and pt D
 time = [3,5.5,8];
 ptA = [2,5;0,0];
 ptB = [5,8;0.25,0.25];
 ptC = [14,7;0,0];
-ptD = [10.25,8.52;0,0];
-
+initialPtD = Assignment3_searchD(circle_xy, r, 0.1, false);
+refinedPtD = Assignment3_searchD(circle_xy, r, 0.01, false, initialPtD);
+ptD = [refinedPtD;0,0];
 %% calculate the segments coefficents for x and y
 x_coeff = TrajGen01([ptA(:,1),ptB(:,1),ptD(:,1)],[ptB(:,1),ptD(:,1),ptC(:,1)],time)
 y_coeff = TrajGen01([ptA(:,2),ptB(:,2),ptD(:,2)],[ptB(:,2),ptD(:,2),ptC(:,2)],time)
