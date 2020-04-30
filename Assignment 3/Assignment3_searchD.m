@@ -8,8 +8,7 @@ r = obstacleRadius;
 
 % initiate variables for the search counter
 min_path_dist = inf;
-min_d_xpos = inf;
-min_d_ypos = inf;
+currentPt = [inf inf];
 discard = false;
 startPt = [5,8];
 endPt = [14,7];
@@ -72,7 +71,7 @@ for dx = -searchBoundary:search_Delta:searchBoundary
         if (considerArm)
             L1 = 9;
             L2 = 9;
-            division = 5;
+            division = 50;
             Q1 = [];
             Q2 = [];
             for i = 1:floor(length(x_displacement)/10):length(x_displacement)
@@ -97,12 +96,12 @@ for dx = -searchBoundary:search_Delta:searchBoundary
         
         if discard == false
             min_path_dist = path_dist;
-            min_d_xpos = DPt(1);
-            min_d_ypos = DPt(2);
-            fprintf('current best via point is (%4.2f , %4.2f) with BCD linaer distance %4.2f \n',min_d_xpos, min_d_ypos, min_path_dist)
+            currentPt(1) = DPt(1);
+            currentPt(2) = DPt(2);
+            fprintf('current best via point is (%4.2f , %4.2f) with BCD linaer distance %4.2f \n',currentPt(1), currentPt(2), min_path_dist)
         end
         % reset the discard
         discard =  false;
     end
 end
-ptD = [min_d_xpos min_d_ypos];
+ptD = currentPt;
