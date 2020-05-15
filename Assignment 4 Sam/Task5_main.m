@@ -19,8 +19,13 @@ kd_y = 100;
 kp = 2;
 OutBound = -999;
 K = diag([kd_x kd_y]);
-force_field_limit = 0.1;
-force_field_constant = 4;
+interact_limit = 0.05*3;
+force_field_limit = 0.05;
+force_field_constant = 5;
+num_trial = 25;
+eps = 1e-20;
+final_e = [];
+
 %% robot parameters
 m1 = 2.00;
 m2 = 1;
@@ -62,7 +67,7 @@ end
 toc;
 fprintf('finished calculating reference in task space\n')
 % Looping the simulation to get multiple test
-for j = 1:25
+for j = 1:num_trial
     %% Define the initial position in joint space
     %% PID joint space controller
     % Initialise the robot to the initial position and velocity
@@ -85,9 +90,7 @@ for j = 1:25
     obj_i = 1;
     estimate_obj_xpos = [];
     estimate_obj_ypos = [];
-    final_e = [];
-    min_d(j) = 1.000;
-    last_dist = 1000;
+    min_d(j) = 1000;
     avoid_xdot = 0;
     avoid_ydot = 0;
     percentage_progress = -20;
@@ -97,39 +100,62 @@ for j = 1:25
         mid_pt = [L1*cos(q(1)),L1*sin(q(1))];
         end_effector = mid_pt+[L2*cos(q(1)+q(2)),L2*sin(q(1)+q(2))];
         [d,th] = sensor_t5(0,end_effector(1),end_effector(2));
-        if d<0.350
+        if d<interact_limit
             estimate_obj_xpos(obj_i) = end_effector(1) + d*cos(th);
             estimate_obj_ypos(obj_i) = end_effector(2) + d*sin(th);
             obj_i = obj_i + 1;
             
             % Interaction
             movement_dir = atan2(ydot_ref(floor(i/dt*dt_PID)+1),xdot_ref(floor(i/dt*dt_PID)+1));
-            if abs(movement_dir-th) < pi/2 && d<last_dist
+            % Before the obstacle
+            if abs(movement_dir-th) < pi/2
                 % Calculate the current movement speed for reference
                 move_speed = (ydot_ref(floor(i/dt*dt_PID)+1)^2 + xdot_ref(floor(i/dt*dt_PID)+1)^2)^0.5;
-                %             fprintf("Avoid maneuver\n")
-                % IF we are above the obstacle
+                % IF above the obstacle
                 if (movement_dir+pi/6<th)
+%                     fprintf("Moving towards in below position\n")
                     avoid_xdot = move_speed*force_field_constant*force_field_limit/...
                         (d+force_field_limit)*sin(th);
                     avoid_ydot = move_speed*force_field_constant*force_field_limit/...
                         (d+force_field_limit)*-cos(th);
+                % If below the obstacle
                 else
+%                     fprintf("Moving towards in above position\n")
                     avoid_xdot = move_speed*force_field_constant*force_field_limit/...
                         (d+force_field_limit)*-sin(th);
                     avoid_ydot = move_speed*force_field_constant*force_field_limit/...
                         (d+force_field_limit)*cos(th);
+                end
+            % After the obstacle
+            elseif pi*11/12 > abs(movement_dir-th) && abs(movement_dir-th) > pi/2
+                % If above the obstacle
+                if (movement_dir>th)
+%                     fprintf("Moving pass in above position\n")
+                    avoid_xdot = move_speed*force_field_constant*force_field_limit/...
+                        (d+force_field_limit)*cos(th+pi/2);
+                    avoid_ydot = move_speed*force_field_constant*force_field_limit/...
+                        (d+force_field_limit)*sin(th+pi/2);             
+                % If below the obstacle
+                else
+%                     fprintf("Moving pass in below position\n")
+                    avoid_xdot = move_speed*force_field_constant*force_field_limit/...
+                        (d+force_field_limit)*sin(th);
+                    avoid_ydot = move_speed*force_field_constant*force_field_limit/...
+                        (d+force_field_limit)*-cos(th);
                 end
             else
                 %             fprintf("Safe\n")
                 avoid_xdot = 0;
                 avoid_ydot = 0;
             end
-            % Save the new distance
-            last_dist = d;
+            
             % Save the smallest d to check whether there is or not a collision
             if (d < min_d(j))
                 min_d(j) = d;
+                % Print the collison condition
+                if d == 0
+                    fprintf("theta is %2.4f at position %2.4f %2.4f\n",th,end_effector(1),end_effector(2))
+                end
             end
         end
         
@@ -144,10 +170,9 @@ for j = 1:25
         
         % Control signal
         % Avoidance mode
-        if abs(avoid_xdot) > 0
-            avoid_xdot;
+        if abs(avoid_xdot) > eps
             linear_velocity_c = K*[xdot_e+avoid_xdot;ydot_e+avoid_ydot];
-            % PD mode
+        % PD mode
         else
             linear_velocity_c = K*[xdot_e+kp*x_e;ydot_e+kp*y_e];
         end
@@ -179,13 +204,15 @@ for j = 1:25
             fprintf("The percentage progress is %2.0f\n",percentage_progress);
         end
     end
-    min_d(j)
+    min_d
     final_e = [final_e;x_e y_e]
     toc;
     fprintf('finished simulation\n')
     %% Plotting the robot
-    subplot(5,5,j)
-    for t = 0:tfinal/30:tfinal
+    subplot(ceil(num_trial^0.5),ceil(num_trial^0.5),j)
+    pbaspect([1.5 1.5 1])
+    axis([0 1.5 -0.2 1.3])
+    for t = 0:tfinal/10:tfinal
         extractedQ1 = q1s(floor(t/dt_PID)+1);
         extractedQ2 = q2s(floor(t/dt_PID)+1);
         plot_robot(extractedQ1,extractedQ2);
