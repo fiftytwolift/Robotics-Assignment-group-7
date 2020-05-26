@@ -33,7 +33,7 @@ function dydt = runrobot(t,y, tau)
     friction = friction_coeff * [q1dot ; d2dot];
     
     %Calculating the qdoubledot -- joint space acceleration
-    qddot = inv(A) * (tau - friction - B * (q1dot *d2dot) - C * [q1dot^2; d2dot^2] - G); % this is qdoubledot.
+    qddot = inv(A) * (tau - friction - B * (q1dot*d2dot) - C * [q1dot^2; d2dot^2] - G); % this is qdoubledot.
 
     dydt = zeros(4,1);
     dydt(1) = y(3);

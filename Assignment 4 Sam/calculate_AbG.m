@@ -1,7 +1,7 @@
 function [A,b,G] = calculate_AbG(q_array,q_dot_array, is_Symbolic)
 %% Parameter Definitions
 % Defines all parameters of the robot
-syms m1 m2 Izz1 Izz2 L1 L2 rC1 rC2 g
+syms m1 m2 Izz1 Izz2 L1 L2 rC1 rC2 g real
 if is_Symbolic == false
     m1 = 2;
     m2 = 1;
@@ -36,29 +36,29 @@ DH_table = table(Dx,Rx,Dz,Rz);
 
 %% Find frame {E}
 syms T0_1 T1_2 T2_E
-T0_1 = Transform_(0,1,DH_table);
-T1_2 = Transform_(1,2,DH_table);
-T2_E = Transform_(2,3,DH_table);
+T0_1 = Transform_(0,1,DH_table)
+T1_2 = Transform_(1,2,DH_table)
+T2_E = Transform_(2,3,DH_table)
 
-T0_2 = T0_1* T1_2;
-T0_E = T0_2 * T2_E;
+T0_2 = T0_1* T1_2
+T0_E = T0_2 * T2_E
 
 %% getting the vector pointing from 1,2 to centre of mass
-p_2_2mid = T0_2*[rC2;0;0;0];
+p_2_2mid = T0_2*[rC2;0;0;0]
 
-p_1_2mid = T0_1*[L1;0;0;0] + p_2_2mid;
-p_1_1mid = T0_1*[rC1;0;0;0];
+p_1_2mid = T0_1*[L1;0;0;0] + p_2_2mid
+p_1_1mid = T0_1*[rC1;0;0;0]
 
 %% Getting the z axis expressed in frame 0
 z1 = T0_1 * [0;0;1;0]
 z2 = T0_2 * [0;0;1;0]
 
 %% Get the Jacobian for centre of masses
-J_v1 = [cross(transpose(z1(1:3)),transpose(p_1_1mid(1:3)))', zeros(3,1)];
-J_w1 = [z1(1:3), zeros(3,1)];
+J_v1 = [cross(transpose(z1(1:3)),transpose(p_1_1mid(1:3)))', zeros(3,1)]
+J_w1 = [z1(1:3), zeros(3,1)]
 
 J_v2 = simplify([cross(transpose(z1(1:3)),transpose(p_1_2mid(1:3)))', ...
-    cross(transpose(z2(1:3)),transpose(p_2_2mid(1:3)))']);
+    cross(transpose(z2(1:3)),transpose(p_2_2mid(1:3)))'])
 J_w2 = [z1(1:3) z2(1:3)]
 
 %% Calculate matrix A
@@ -86,7 +86,7 @@ for i=1:2
 end
 B = [2*b(1,1,2); 2*b(2,1,2)];
 C = [b(1,1,1) b(1,2,2);b(2,1,1) b(2,2,2)];
-b = B*[Q1_dot Q2_dot] + C*[Q1_dot^2;Q2_dot^2];
+b = B*[Q1_dot*Q2_dot] + C*[Q1_dot^2;Q2_dot^2];
 
 %% Calculate matrix G
 G = [transpose(J_v1)*m1*g*[0;1;0] + transpose(J_v2)*m2*g*[0;1;0]];
