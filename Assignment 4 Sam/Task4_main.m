@@ -6,7 +6,7 @@ Task4_dynamics;
 %% Task 4.1 Plotting the trajectory
 i = 1;
 for t = 0:dt_PID:tfinal
-    end_effector_x(i) = [L1*cosd(q1s(i))+ L2*cosd(q1s(i)+q2s(i))];
+    end_effector_x(i) = [L1*cosd(q1s(i)) + L2*cosd(q1s(i)+q2s(i))];
     end_effector_y(i) = [L1*sind(q1s(i)) + L2*sind(q1s(i)+q2s(i))];
     i = i+1;
 end
@@ -15,7 +15,7 @@ subplot(1,2,1)
 title('Task 4.1 Trajectory A x vs t', 'FontSize',15)
 hold on
 plot([0:dt_PID:tfinal],end_effector_x,'r')
-plot([0:dt:tfinal],x_ref,'b')
+stairs([0:dt:tfinal],x_ref,'b')
 xlabel('Time/s', 'FontSize', 13)
 ylabel('x / m', 'FontSize', 13)
 legend('real trajectory','reference trajectory', 'FontSize', 13)
@@ -24,7 +24,7 @@ subplot(1,2,2)
 title('Task 4.1 Trajectory A y vs t', 'FontSize', 15)
 hold on
 plot([0:dt_PID:tfinal],end_effector_y,'r')
-plot([0:dt:tfinal],y_ref,'b')
+stairs([0:dt:tfinal],y_ref,'b')
 xlabel('Time/s', 'FontSize', 13)
 ylabel('y / m', 'FontSize', 13)
 legend('real trajectory','reference trajectory', 'FontSize', 13)

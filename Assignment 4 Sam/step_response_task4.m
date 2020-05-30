@@ -1,21 +1,22 @@
+close all
+clear all
 %% Initiate the variables for the trajectory
 x_init = 0.71;
 y_init = 1.08;
-x_final = 1.485;
-y_final = 0.041;
-
 xdot_init = 0;
 ydot_init = 0;
-xdot_final = 0;
-ydot_final = 0;
 
-tfinal = 5.0;
+tfinal = 0.5;
 dt = 0.01;
 dt_PID = 0.001;
 
-kp_x = 50;
-kp_y = 50;
+kp_x = 300;
+kp_y = 300;
 Kp = diag([kp_x kp_y]);
+
+ki_x = 0;
+ki_y = 0;
+Ki = diag([ki_x ki_y]);
 
 kp1 = 1250;
 kp2 = 380;
@@ -32,34 +33,31 @@ rC1 = L1/2;
 rC2 = L2/2;
 g = 9.81;
 syms q1 q2
-J_v = [-L2*sin(q1+q2) - L1*sin(q1), -L2*sin(q1+q2);...
-    L2*cos(q1+q2) + L1*cos(q1), L2*cos(q1+q2);...
+J_v = [-L2*sind(q1+q2) - L1*sind(q1), -L2*sind(q1+q2);...
+    L2*cosd(q1+q2) + L1*cosd(q1), L2*cosd(q1+q2);...
     0,0];
+J_w = [0, 0;...
+    0, 0;...
+    1, 1];
 J_v_xy_inv = inv(J_v(1:2,1:2));
-
-%% Generate the coefficients for the two angles
-tic;
-x_eq_coeff = TrajGen_each_seg([x_init xdot_init],[x_final xdot_final] , [0 tfinal]);
-y_eq_coeff = TrajGen_each_seg([y_init ydot_init],[y_final ydot_final] , [0 tfinal]);
-toc;
-fprintf('finished trajectory generation\n')
+R0_E = [cos(q1 + q2), -sin(q1 + q2), 0;...
+    sin(q1 + q2),  cos(q1 + q2), 0;
+    0           ,  0           , 1];
 %% Generate the points on the trajectory
 tic;
 syms q1 q2
 qdot_buffer =[];
 time_control=0:dt:tfinal;
 for time_index = 1: length(time_control)
-    x_ref(time_index) = [time_control(time_index)^3 time_control(time_index)^2 time_control(time_index) 1]*x_eq_coeff;
-    y_ref(time_index) = [time_control(time_index)^3 time_control(time_index)^2 time_control(time_index) 1]*y_eq_coeff;
-    xdot_ref(time_index) = [3*time_control(time_index)^2 2*time_control(time_index) 1 0]*x_eq_coeff;
-    ydot_ref(time_index) = [3*time_control(time_index)^2 2*time_control(time_index) 1 0]*y_eq_coeff;
+    x_ref(time_index) = 0.61;
+    y_ref(time_index) = 1.18;
 end
 toc;
 fprintf('finished calculating reference in task space\n')
 %% Define the initial position in joint space
 % Initialise the robot to the initial position and velocity
 % q for control loop
-[q1_ref_init, q2_ref_init] = two_arm_IK(x_ref(1),y_ref(1),false);
+[q1_ref_init, q2_ref_init] = two_arm_IK(x_init,y_init,false);
 [q(1),q(2),qdot(1),qdot(2)] = ...
     Task3_angle_limit(q1_ref_init/180*pi,q2_ref_init/180*pi,0,0);
 
@@ -74,28 +72,33 @@ tic;
 angular_velocity_c = [0;0];
 angular_velocity_c_old_buffer = [0;0];
 linear_velocity_c = [0;0];
-
+xint_e = 0;
+yint_e = 0;
 for time=0:dt_PID:tfinal
     if mod(i,floor(dt/dt_PID)) == 1
         % Points of end-effector
         mid_pt = [L1*cos(q(1)),L1*sin(q(1))];
         end_effector = mid_pt+[L2*cos(q(1)+q(2)),L2*sin(q(1)+q(2))];
         
+        % Calculate the actual x,y velocity
+        % xy_vel_real = round(double(subs(J_v,[q1 q2],[q(1)*180/pi q(2)*180/pi])),3)*[qdot(1);qdot(2)];
+        
         % Error term
         x_e = x_ref(ceil(i/dt*dt_PID)) - end_effector(1);
         y_e = y_ref(ceil(i/dt*dt_PID)) - end_effector(2);
-
-        % velocity tracting signal
-        xy_vel_track = [xdot_ref(ceil(i/dt*dt_PID));ydot_ref(ceil(i/dt*dt_PID))];
+        
+        xint_e = xint_e + x_e*dt;
+        yint_e = yint_e + y_e*dt;
+        
         % Control signal
-        linear_velocity_c = xy_vel_track + Kp*[x_e;y_e];
-    
-        % Before overwriting the control signal, save the old one
-        angular_velocity_c_old_buffer = angular_velocity_c;
-        % converting back to angular velocity control signal 
-        angular_velocity_c = round(double(subs(J_v_xy_inv,[q1 q2],[q(1) q(2)])),3)...
-            *linear_velocity_c;
+        linear_velocity_c= Kp*[x_e;y_e]+Ki*[xint_e;yint_e];
     end
+    % Before overwriting the control signal, save the old one
+    angular_velocity_c_old_buffer = angular_velocity_c;
+    % converting back to angular velocity control signal 
+    angular_velocity_c = round(double(subs(J_v_xy_inv,[q1 q2],[q(1)*180/pi q(2)*180/pi])),3)...
+        *linear_velocity_c;
+ 
     
     % Error term in angular velocity
     q1_diff(i) = angular_velocity_c(1) - qdot(1);
@@ -110,8 +113,8 @@ for time=0:dt_PID:tfinal
     q2dot_c = kp2*q2_diff(i) + kd2*q2_e_diff(i); 
     
     %Torque applied
-    tau = [ g*m2*(rC2*cos(q(1) + q(2)) + L1*cos(q(1))) + g*m1*rC1*cos(q(1)) + q1dot_c;
-        g*m2*rC2*cos(q(1) + q(2)) + q2dot_c];
+    tau = [ g*m2*(rC2*cos(q(1) + q(2)) + L1*cos(q(1))) + g*m1*rC1*cos(q(1)) + angular_velocity_c(1);
+        g*m2*rC2*cos(q(1) + q(2)) + angular_velocity_c(2)];
     
     
     [t,y] = ode45(@(t,y) runrobot(t,y,tau), [0, dt_PID], [q(1), q(2), qdot(1), qdot(2)]);
@@ -133,3 +136,29 @@ for time=0:dt_PID:tfinal
 end
 toc;
 fprintf('finished simulation\n')
+
+%% Plotting the position
+i = 1;
+for t = 0:dt_PID:tfinal
+    end_effector_x(i) = [L1*cosd(q1s(i))+ L2*cosd(q1s(i)+q2s(i))];
+    end_effector_y(i) = [L1*sind(q1s(i)) + L2*sind(q1s(i)+q2s(i))];
+    i = i+1;
+end
+figure('Name','Task 4.1')
+subplot(1,2,1)
+title('Task 4.1 Trajectory A x vs t', 'FontSize',15)
+hold on
+plot([0:dt_PID:tfinal],end_effector_x,'r')
+stairs([0:dt:tfinal],x_ref,'b')
+xlabel('Time/s', 'FontSize', 13)
+ylabel('x / m', 'FontSize', 13)
+legend('real trajectory','reference trajectory', 'FontSize', 13)
+
+subplot(1,2,2)
+title('Task 4.1 Trajectory A y vs t', 'FontSize', 15)
+hold on
+plot([0:dt_PID:tfinal],end_effector_y,'r')
+stairs([0:dt:tfinal],y_ref,'b')
+xlabel('Time/s', 'FontSize', 13)
+ylabel('y / m', 'FontSize', 13)
+legend('real trajectory','reference trajectory', 'FontSize', 13)

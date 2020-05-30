@@ -1,18 +1,17 @@
 close all;
 clear all;
+%% Run the simulation and dynamics of the robot
+Task1_dynamics
 
-% robot simulation part
-%% robot parameters
-m1 = 2.00;
-m2 = 1;
-Izz1 = 0.5;
-Izz2 = 0.3;
-L1 = 1;
-L2 = 0.6;
-rC1 = L1/2;
-rC2 = L2/2;
-g = 9.81;
-%% first for free swing
+%% Task 1.1 All variables output
+
+A = simplify(A)
+B = simplify(B)
+C = simplify(C)
+b = simplify(b)
+G = simplify(G)
+    
+%% Task 1.3 first for free swing
 dt = 0.01;
 tf = 5;
 
@@ -47,12 +46,12 @@ figure();
 time = 0:dt:tf;
 plot(time,q1s,'-o', time,q2s,'-o')
 title('Free drop')
-axis([0 5 -180 180])
+axis([0 tf -180 180])
 xlabel('time / s')
 ylabel('Joint angle / degree')
 legend('q1','q2')
 
-%% Second part, Gravity compensation
+%% Task 1.2 Gravity compensation
 clear q qdot i q1s q2s qdot1s qdot2s;
 % Re-initialise the robot to the initial position and velocity
 q(1)= 0.0; % Converting degree to radian
@@ -80,13 +79,13 @@ end
 figure();
 time = 0:dt:tf;
 plot(time,q1s,'-o', time,q2s,'-o')
-axis([0 5 -10 10])
+axis([0 tf -10 10])
 xlabel('time / s')
 ylabel('Joint angle / degree')
 title('Gravity compensated')
 legend('q1','q2')
 
-%% Second part, Gravity compensation but insufficient
+%% Task 1.2 Gravity compensation but insufficient
 clear q qdot i q1s q2s qdot1s qdot2s;
 % Re-initialise the robot to the initial position and velocity
 q(1)= 0.0; % Converting degree to radian
@@ -115,7 +114,7 @@ end
 figure();
 time = 0:dt:tf;
 plot(time,q1s,'-o', time,q2s,'-o')
-axis([0 5 -10 10])
+axis([0 tf -10 10])
 title('Insufficient Gravity compensated')
 xlabel('time / s')
 ylabel('Joint angle / degree')

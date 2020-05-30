@@ -1,18 +1,7 @@
-function [A,b,G] = calculate_AbG(q_array,q_dot_array, is_Symbolic)
 %% Parameter Definitions
 % Defines all parameters of the robot
 syms m1 m2 Izz1 Izz2 L1 L2 rC1 rC2 g real
-if is_Symbolic == false
-    m1 = 2;
-    m2 = 1;
-    Izz1 = 0.5;
-    Izz2 = 0.3;
-    L1 = 1;
-    L2 = 0.6;
-    rC1 = L1/2;
-    rC2 = L2/2;
-    g = 9.81;
-end
+
 
 IC1 = [0 0 0;
     0 0 0;
@@ -21,10 +10,8 @@ IC2 = [0 0 0;
     0 0 0;
     0 0 Izz2];
 %% Q array and Q dot array variables
-Q1 = q_array(1);
-Q2 = q_array(2);
-Q1_dot = q_dot_array(1);
-Q2_dot = q_dot_array(2);
+syms Q1 Q2 Q1_dot Q2_dot real
+
 %% DH Table Generation
 % Create all the arrays in the DH table
 Dx = [0;L1;L2];
@@ -90,21 +77,14 @@ b = B*[Q1_dot*Q2_dot] + C*[Q1_dot^2;Q2_dot^2];
 
 %% Task 1.1 Calculate matrix G
 G = [transpose(J_v1)*m1*g*[0;1;0] + transpose(J_v2)*m2*g*[0;1;0]];
-%% All variables output
-if is_Symbolic==true
-    A = simplify(A)
-    B = simplify(B)    
-    C = simplify(C)    
-    b = simplify(b)
-    G = simplify(G)
-else
-    A;
-    B;
-    C;
-    b;
-    G;
-end
 
-% A
-% b
-% G
+% Reset the variables back to numeric
+m1 = 2;
+m2 = 1;
+Izz1 = 0.5;
+Izz2 = 0.3;
+L1 = 1;
+L2 = 0.6;
+rC1 = L1/2;
+rC2 = L2/2;
+g = 9.81;

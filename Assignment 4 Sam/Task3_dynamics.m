@@ -12,9 +12,9 @@ tfinal = 5.0;
 dt = 0.01;
 dt_PID = 0.001;
 kp1 = 1250;
-kp2 = 350;
-kd1 = 10;
-kd2 = 3;
+kp2 = 380;
+kd1 = 0.05;
+kd2 = 0.02;
 %% robot parameters
 m1 = 2.00;
 m2 = 1;
@@ -79,13 +79,13 @@ tau=[0;0];
 tic
 for time=dt_PID:dt_PID:tfinal
     % Error term in angular position
-    q1_diff(i) = q1dot_ref(floor(i/(dt/dt_PID))+1)/180*pi - qdot(1);
-    q2_diff(i) = q2dot_ref(floor(i/(dt/dt_PID))+1)/180*pi - qdot(2);
+    q1_diff(i) = q1dot_ref(ceil(i/(dt/dt_PID)))/180*pi - qdot(1);
+    q2_diff(i) = q2dot_ref(ceil(i/(dt/dt_PID)))/180*pi - qdot(2);
     
     % Error term in angular velocity
-    q1_e_diff(i) = q1_diff(i)-q1_diff(i-1);
-    q2_e_diff(i) = q2_diff(i)-q2_diff(i-1);
-        
+    q1_e_diff(i) = (q1dot_ref(ceil(i/(dt/dt_PID)))-q1dot_ref(max(ceil((i-1)/(dt/dt_PID)),1)))/dt-(q1_diff(i)-q1_diff(max(i-1,1)))/dt_PID;
+    q2_e_diff(i) = (q2dot_ref(ceil(i/(dt/dt_PID)))-q2dot_ref(max(ceil((i-1)/(dt/dt_PID)),1)))/dt-(q2_diff(i)-q2_diff(max(i-1,1)))/dt_PID;
+    
     % control signal for each joint
     q1dot_c = kp1*q1_diff(i) + kd1*q1_e_diff(i);
     q2dot_c = kp2*q2_diff(i) + kd2*q2_e_diff(i);   
@@ -127,10 +127,10 @@ ydot_final = 0;
 tfinal = 5.0;
 dt = 0.01;
 dt_PID = 0.001;
-kp1 = 1;
-kp2 = 1;
-kd1 = 1500;
-kd2 = 300;
+kp1 = 1250;
+kp2 = 380;
+kd1 = 0.05;
+kd2 = 0.02;
 %% Generate the coefficients for the two angles
 tic;
 x_eq_coeff = TrajGen_each_seg([x_init xdot_init],[x_final xdot_final] , [0 tfinal]);
@@ -181,13 +181,13 @@ i = 2;
 tau=[0;0];
 tic
 for time=dt_PID:dt_PID:tfinal
-    % Error term in angular position
-    q1_diff(i) = q1_ref(floor(i/(dt/dt_PID))+1)/180*pi - q(1);
-    q2_diff(i) = q2_ref(floor(i/(dt/dt_PID))+1)/180*pi - q(2);
-    
     % Error term in angular velocity
-    q1_e_diff(i) = q1dot_ref(floor(i/(dt/dt_PID))+1)/180*pi - qdot(1);
-    q2_e_diff(i) = q2dot_ref(floor(i/(dt/dt_PID))+1)/180*pi - qdot(2);
+    q1_diff(i) = q1dot_ref(ceil(i/(dt/dt_PID)))/180*pi - qdot(1);
+    q2_diff(i) = q2dot_ref(ceil(i/(dt/dt_PID)))/180*pi - qdot(2);
+    
+    % Error term in angular acceleration
+    q1_e_diff(i) = (q1dot_ref(ceil(i/(dt/dt_PID)))-q1dot_ref(max(ceil((i-1)/(dt/dt_PID)),1)))/dt-(q1_diff(i)-q1_diff(max(i-1,1)))/dt_PID;
+    q2_e_diff(i) = (q2dot_ref(ceil(i/(dt/dt_PID)))-q2dot_ref(max(ceil((i-1)/(dt/dt_PID)),1)))/dt-(q2_diff(i)-q2_diff(max(i-1,1)))/dt_PID;
     
     % control signal for each joint
     q1dot_c = kp1*q1_diff(i) + kd1*q1_e_diff(i);

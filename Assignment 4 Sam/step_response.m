@@ -10,9 +10,9 @@ tfinal = 0.05;
 dt = 0.01;
 dt_PID = 0.001;
 kp1 = 1250;
-kp2 = 350;
-kd1 = 10;
-kd2 = 3;
+kp2 = 380;
+kd1 = 0.05;
+kd2 = 0.02;
 %% robot parameters
 m1 = 2.00;
 m2 = 1;
@@ -50,14 +50,13 @@ qdot2s(1) = q2dot_init;
 i = 2;
 tau=[0;0];
 for time=dt_PID:dt_PID:tfinal
-    % Error term in angular velocity
-    q1_diff(i) = q1dot_ref(floor(i/(dt/dt_PID))+1)/180*pi - qdot(1);
-    q2_diff(i) = q2dot_ref(floor(i/(dt/dt_PID))+1)/180*pi - qdot(2);
+    % Error term in angular position
+    q1_diff(i) = q1dot_ref(ceil(i/(dt/dt_PID)))/180*pi - qdot(1);
+    q2_diff(i) = q2dot_ref(ceil(i/(dt/dt_PID)))/180*pi - qdot(2);
     
     % Error term in angular velocity
-    q1_e_diff(i) = q1_diff(i)-q1_diff(i-1);
-    q2_e_diff(i) = q2_diff(i)-q2_diff(i-1);
-        
+    q1_e_diff(i) = (q1dot_ref(ceil(i/(dt/dt_PID)))-q1dot_ref(max(ceil((i-1)/(dt/dt_PID)),1)))/dt-(q1_diff(i)-q1_diff(max(i-1,1)))/dt_PID;
+    q2_e_diff(i) = (q2dot_ref(ceil(i/(dt/dt_PID)))-q2dot_ref(max(ceil((i-1)/(dt/dt_PID)),1)))/dt-(q2_diff(i)-q2_diff(max(i-1,1)))/dt_PID;
     
     q1dot_c = kp1*q1_diff(i) + kd1*q1_e_diff(i);
     q2dot_c = kp2*q2_diff(i) + kd2*q2_e_diff(i);    
@@ -84,22 +83,20 @@ end
 %% Plotting the angles and angular velocities
 figure('Name','Task 2.1')
 
-subplot(1,2,1)
 hold on
 plot([0:dt_PID:tfinal],qdot1s,'r')
-plot([0:dt:tfinal],q1dot_ref,'b')
-xlabel('Time/s')
-ylabel('Angular velocity /Deg per sec')
+stairs([0:dt:tfinal],q1dot_ref,'b')
+xlabel('Time/s','FontSize', 11)
+ylabel('Angular velocity /Deg per sec','FontSize', 11)
 legend('real velocity','reference velocity','FontSize', 13)
 title('Step response q1dot vs time ','FontSize', 15)
 
-
-subplot(1,2,2)
+figure('Name','Task 2.1')
 hold on
 plot([0:dt_PID:tfinal],qdot2s,'r')
-plot([0:dt:tfinal],q2dot_ref,'b')
-xlabel('Time/s')
-ylabel('Angular velocity /Deg per sec')
+stairs([0:dt:tfinal],q2dot_ref,'b')
+xlabel('Time/s','FontSize', 11)
+ylabel('Angular velocity /Deg per sec','FontSize', 11)
 legend('real velocity','reference velocity','FontSize', 13)
 title('Step response q2dot vs time','FontSize', 15)
 

@@ -12,19 +12,21 @@ ydot_final = 0;
 tfinal = 5.0;
 dt = 0.01;
 dt_PID = 0.001;
-kp_x = 100;
-kp_y = 100;
+kp_x = 1;
+kp_y = 1;
 Kp = diag([kp_x kp_y]);
-ki_x = 200;
-ki_y = 200;
-Ki = diag([ki_x,ki_y]);
+
+kp1 = 1250;
+kp2 = 380;
+kd1 = 0.05;
+kd2 = 0.02;
 
 % coefficient for the avoidance part
 OutBound = -999;
 interact_limit = 0.15;
-force_field_limit = 0.05;
-force_field_constant = 500;
-num_trial = 4;
+force_field_limit = 0.010;
+force_field_constant = 8;
+num_trial = 100;
 eps = 1e-20;
 final_e = [];
 
