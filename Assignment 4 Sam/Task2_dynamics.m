@@ -15,7 +15,6 @@ kp1 = 1250;
 kp2 = 380;
 kd1 = 0.05;
 kd2 = 0.02;
-
 %% robot parameters
 m1 = 2.00;
 m2 = 1;
