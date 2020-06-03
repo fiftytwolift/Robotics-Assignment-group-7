@@ -51,6 +51,5 @@ end
 title('Task 3.3 Trajectory B in joint space velocity control')
 xlabel('x / m')
 ylabel('y / m')
-axis([0 1.4 -0.8 1.2]);
-pbaspect([14 20 1]);
-
+axis([0 1.4 -1.0 1.2]);
+pbaspect([14 22 1]);

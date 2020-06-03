@@ -1,17 +1,15 @@
-clear all
-close all
 %% Initiate the variables for the trajectory
 x_init = 0.71;
 y_init = 1.08;
-x_final = 0.81;
-y_final = 0.98;
+x_final = 1.485;
+y_final = 0.041;
 
 xdot_init = 0;
 ydot_init = 0;
 xdot_final = 0;
 ydot_final = 0;
 
-tfinal = 0.1;
+tfinal = 5.0;
 dt = 0.01;
 dt_PID = 0.001;
 
@@ -39,23 +37,29 @@ J_v = [-L2*sin(q1+q2) - L1*sin(q1), -L2*sin(q1+q2);...
     0,0];
 J_v_xy_inv = inv(J_v(1:2,1:2));
 
+%% Generate the coefficients for the two angles
+tic;
+x_eq_coeff = TrajGen_each_seg([x_init xdot_init],[x_final xdot_final] , [0 tfinal]);
+y_eq_coeff = TrajGen_each_seg([y_init ydot_init],[y_final ydot_final] , [0 tfinal]);
+toc;
+fprintf('finished trajectory generation\n')
 %% Generate the points on the trajectory
 tic;
 syms q1 q2
 qdot_buffer =[];
 time_control=0:dt:tfinal;
 for time_index = 1: length(time_control)
-    x_ref(time_index) = x_final;
-    y_ref(time_index) = y_final;
-    xdot_ref(time_index) = xdot_init;
-    ydot_ref(time_index) = ydot_init;
+    x_ref(time_index) = [time_control(time_index)^3 time_control(time_index)^2 time_control(time_index) 1]*x_eq_coeff;
+    y_ref(time_index) = [time_control(time_index)^3 time_control(time_index)^2 time_control(time_index) 1]*y_eq_coeff;
+    xdot_ref(time_index) = [3*time_control(time_index)^2 2*time_control(time_index) 1 0]*x_eq_coeff;
+    ydot_ref(time_index) = [3*time_control(time_index)^2 2*time_control(time_index) 1 0]*y_eq_coeff;
 end
 toc;
 fprintf('finished calculating reference in task space\n')
 %% Define the initial position in joint space
 % Initialise the robot to the initial position and velocity
 % q for control loop
-[q1_ref_init, q2_ref_init] = two_arm_IK(x_init,y_init,false);
+[q1_ref_init, q2_ref_init] = two_arm_IK(x_ref(1),y_ref(1),false);
 [q(1),q(2),qdot(1),qdot(2)] = ...
     Task3_angle_limit(q1_ref_init/180*pi,q2_ref_init/180*pi,0,0);
 
@@ -128,28 +132,4 @@ for time=0:dt_PID:tfinal
     i = i+1;
 end
 toc;
-%% Plotting the trajectory
-i = 1;
-for t = 0:dt_PID:tfinal
-    end_effector_x(i) = [L1*cosd(q1s(i)) + L2*cosd(q1s(i)+q2s(i))];
-    end_effector_y(i) = [L1*sind(q1s(i)) + L2*sind(q1s(i)+q2s(i))];
-    i = i+1;
-end
-figure('Name','Task 4.1')
-subplot(1,2,1)
-title('Task space position control step response x vs t', 'FontSize',15)
-hold on
-plot([0:dt_PID:tfinal],end_effector_x,'r')
-stairs([0:dt:tfinal],x_ref,'b')
-xlabel('Time/s', 'FontSize', 13)
-ylabel('x / m', 'FontSize', 13)
-legend('real trajectory','reference trajectory', 'FontSize', 13)
-
-subplot(1,2,2)
-title('Task space position control step response y vs t', 'FontSize', 15)
-hold on
-plot([0:dt_PID:tfinal],end_effector_y,'r')
-stairs([0:dt:tfinal],y_ref,'b')
-xlabel('Time/s', 'FontSize', 13)
-ylabel('y / m', 'FontSize', 13)
-legend('real trajectory','reference trajectory', 'FontSize', 13)
+fprintf('finished simulation\n')

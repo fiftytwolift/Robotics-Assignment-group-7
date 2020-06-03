@@ -169,20 +169,20 @@ for j = 1:num_trial
     final_e = [final_e;x_e y_e];
     toc;
     fprintf('finished simulation\n')
-%     %% Plotting the robot
-%     subplot(ceil(num_trial^0.5),ceil(num_trial^0.5),j)
-%     pbaspect([1.5 1.5 1])
-%     axis([0 1.5 -0.2 1.3])
-%     for t = 0:tfinal/10:tfinal
-%         extractedQ1 = q1s(floor(t/dt_PID)+1);
-%         extractedQ2 = q2s(floor(t/dt_PID)+1);
-%         plot_robot(extractedQ1,extractedQ2);
-%     end
-%     % Also, plot the avoided obstacle if it detected one
-%     if length(estimate_obj_xpos)>=1
-%         scatter(estimate_obj_xpos,estimate_obj_ypos);
-%     end
-%     title('Trajectory A in taskspace velocity control')
-%     xlabel('x / m')
-%     ylabel('y / m')
+    %% Plotting the robot
+    subplot(ceil(num_trial^0.5),ceil(num_trial^0.5),j)
+    pbaspect([1.5 1.5 1])
+    axis([0 1.5 -0.2 1.3])
+    for t = 0:tfinal/10:tfinal
+        extractedQ1 = q1s(floor(t/dt_PID)+1);
+        extractedQ2 = q2s(floor(t/dt_PID)+1);
+        plot_robot(extractedQ1,extractedQ2);
+    end
+    % Also, plot the avoided obstacle if it detected one
+    if length(estimate_obj_xpos)>=1
+        scatter(estimate_obj_xpos,estimate_obj_ypos);
+    end
+    title('Trajectory A in taskspace velocity control')
+    xlabel('x / m')
+    ylabel('y / m')
 end
