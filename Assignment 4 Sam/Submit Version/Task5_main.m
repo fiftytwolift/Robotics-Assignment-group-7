@@ -32,6 +32,7 @@ percentage_progress = -20;
 angular_velocity_c = [0;0];
 angular_velocity_c_old_buffer = [0;0];
 linear_velocity_c = [0;0];
+stopped = false;
 for time=0:dt_PID:tfinal
     if mod(i,floor(dt/dt_PID)) == 1
         
@@ -40,54 +41,39 @@ for time=0:dt_PID:tfinal
         mid_pt = [L1*cos(q(1)),L1*sin(q(1))];
         end_effector = mid_pt+[L2*cos(q(1)+q(2)),L2*sin(q(1)+q(2))];
         [d,th] = sensor_t5(0,end_effector(1),end_effector(2));
+        
         if d<interact_limit
-            estimate_obj_xpos(obj_i) = end_effector(1) + d*cos(th);
-            estimate_obj_ypos(obj_i) = end_effector(2) + d*sin(th);
-            obj_i = obj_i + 1;
-            
-            % Interaction
-            movement_dir = atan2(ydot_ref(floor(i/dt*dt_PID)+1),xdot_ref(floor(i/dt*dt_PID)+1));
-            % Before the obstacle
-            if abs(movement_dir-th) < pi/2
-                % Calculate the current movement speed for reference
-                move_speed = (ydot_ref(floor(i/dt*dt_PID)+1)^2 + xdot_ref(floor(i/dt*dt_PID)+1)^2)^0.5;
-                % IF above the obstacle
-                if (movement_dir+pi/6<th)
-                    % fprintf("Moving towards in below position\n")
+            if d > stop_limit
+                estimate_obj_xpos(obj_i) = end_effector(1) + d*cos(th);
+                estimate_obj_ypos(obj_i) = end_effector(2) + d*sin(th);
+                obj_i = obj_i + 1;
+                % Interaction
+                movement_dir = atan2(ydot_ref(floor(i/dt*dt_PID)+1),xdot_ref(floor(i/dt*dt_PID)+1));
+                % Before the obstacle
+                if abs(movement_dir-th) < pi/2
+                    % Calculate the current movement speed for reference
+                    move_speed = (ydot_ref(floor(i/dt*dt_PID)+1)^2 + xdot_ref(floor(i/dt*dt_PID)+1)^2)^0.5;
+                    % IF below the obstacle
                     avoid_xdot = move_speed*force_field_constant*force_field_limit/...
-                        (d+force_field_limit)*sin(th);
+                        (d+force_field_limit)*+sin(th);
                     avoid_ydot = move_speed*force_field_constant*force_field_limit/...
                         (d+force_field_limit)*-cos(th);
-                    from_above = true;
-                    % IF below the obstacle
-                else
-                    % fprintf("Moving towards in above position\n")
-                    avoid_xdot = move_speed*force_field_constant*force_field_limit/...
-                        (d+force_field_limit)*-sin(th);
-                    avoid_ydot = move_speed*force_field_constant*force_field_limit/...
-                        (d+force_field_limit)*cos(th);
-                    from_above = false;
-                    
                 end
-                % After the obstacle
-            elseif  abs(movement_dir-th)>pi/2
-                % IF above the obstacle
-                if from_above == true
-                    % fprintf("Moving pass in above position\n")
-                    avoid_xdot = move_speed*force_field_constant*force_field_limit/...
-                        (d+force_field_limit)*sin(th);
-                    avoid_ydot = move_speed*force_field_constant*force_field_limit/...
-                        (d+force_field_limit)*-cos(th);
-                    % IF below the obstacle
-                else
-                    % fprintf("Moving pass in below position\n")
-                    avoid_xdot = move_speed*force_field_constant*force_field_limit/...
-                        (d+force_field_limit)*-sin(th);
-                    avoid_ydot = move_speed*force_field_constant*force_field_limit/...
-                        (d+force_field_limit)*cos(th);
+            else
+                if stopped == false
+                    fix_x = end_effector(1);
+                    fix_y = end_effector(2);
+                    stopped = true;
                 end
+                avoid_xdot = 0;
+                avoid_ydot = 0;                
+                x_ref(ceil(i/dt*dt_PID)) = fix_x;
+                y_ref(ceil(i/dt*dt_PID)) = fix_y;
+                xdot_ref(ceil(i/dt*dt_PID)) = 0;
+                ydot_ref(ceil(i/dt*dt_PID)) = 0;
             end
         else
+            
             % fprintf("Safe\n")
             avoid_xdot = 0;
             avoid_ydot = 0;

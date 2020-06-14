@@ -23,12 +23,13 @@ kd2 = 0.02;
 
 % coefficient for the avoidance part
 OutBound = -999;
-interact_limit = 0.15;
+interact_limit = 0.2;
 force_field_limit = 0.010;
 force_field_constant = 8;
 num_trial = 100;
 eps = 1e-20;
 final_e = [];
+stop_limit = 0.02;
 
 %% robot parameters
 m1 = 2.00;

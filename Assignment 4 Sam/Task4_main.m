@@ -36,7 +36,7 @@ for t = 0:(tfinal/10):tfinal
     extractedQ2 = q2s(floor(t/dt_PID)+1);
     plot_robot(extractedQ1,extractedQ2);
 end
-title('Task 4.2 Trajectory A in task space velocity control XY plot')
+title('Trajectory B in task space velocity control XY plot')
 xlabel('x / m')
 ylabel('y / m')
 

@@ -23,12 +23,14 @@ kd2 = 0.02;
 
 % coefficient for the avoidance part
 OutBound = -999;
-interact_limit = 0.15;
+interact_limit = 0.25;
 force_field_limit = 0.010;
 force_field_constant = 8;
-num_trial = 100;
+stop_limit = 0.02;
+num_trial = 25;
 eps = 1e-20;
 final_e = [];
+final_q2 = [];
 
 %% robot parameters
 m1 = 2.00;
@@ -57,16 +59,3 @@ x_eq_coeff = TrajGen_each_seg([x_init xdot_init],[x_final xdot_final] , [0 tfina
 y_eq_coeff = TrajGen_each_seg([y_init ydot_init],[y_final ydot_final] , [0 tfinal]);
 toc;
 fprintf('finished trajectory generation\n')
-%% Generate the points on the trajectory
-tic;
-syms q1 q2
-qdot_buffer =[];
-time_control=0:dt:tfinal;
-for time_index = 1: length(time_control)
-    x_ref(time_index) = [time_control(time_index)^3 time_control(time_index)^2 time_control(time_index) 1]*x_eq_coeff;
-    y_ref(time_index) = [time_control(time_index)^3 time_control(time_index)^2 time_control(time_index) 1]*y_eq_coeff;
-    xdot_ref(time_index) = [3*time_control(time_index)^2 2*time_control(time_index) 1 0]*x_eq_coeff;
-    ydot_ref(time_index) = [3*time_control(time_index)^2 2*time_control(time_index) 1 0]*y_eq_coeff;
-end
-toc;
-fprintf('finished calculating reference in task space\n')
